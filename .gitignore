@@ -1,0 +1,13 @@
+/dist/
+/gui/.build/
+/gui/.swiftpm/
+/gui/AppIcon.png
+/gui/AppIcon.ppm
+/gui/AppIcon.icns
+/gui/AppIcon.iconset/
+/gui/AppIcon-masked.png
+**/.DS_Store
+/brainwash
+/brainwash-cli
+*.exe
+coverage.out

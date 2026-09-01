@@ -1,0 +1,29 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="canvas" x1="134" y1="80" x2="912" y2="938" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#EDF8F6"/>
+      <stop offset="1" stop-color="#CBEAE4"/>
+    </linearGradient>
+    <linearGradient id="line" x1="255" y1="256" x2="779" y2="783" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#173A43"/>
+      <stop offset="1" stop-color="#13897F"/>
+    </linearGradient>
+  </defs>
+  <rect width="1024" height="1024" rx="232" fill="url(#canvas)"/>
+  <rect x="82" y="82" width="860" height="860" rx="194" stroke="#1C887F" stroke-opacity=".12" stroke-width="8"/>
+
+  <!-- The brain is intentionally one clean, rounded line system. -->
+  <g stroke="url(#line)" stroke-width="36" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M512 766V666"/>
+    <path d="M512 255C469 213 398 207 345 239C286 274 264 348 291 408C247 446 247 519 291 557C273 619 304 690 365 716C410 735 463 720 493 687"/>
+    <path d="M512 255C555 213 626 207 679 239C738 274 760 348 733 408C777 446 777 519 733 557C751 619 720 690 659 716C614 735 561 720 531 687"/>
+    <path d="M291 408C337 385 387 398 416 435C451 479 445 548 402 581"/>
+    <path d="M733 408C687 385 637 398 608 435C573 479 579 548 622 581"/>
+    <path d="M365 716C367 654 411 617 469 622"/>
+    <path d="M659 716C657 654 613 617 555 622"/>
+  </g>
+
+  <!-- The four-point star identifies the operation as cleanup, not cognition alone. -->
+  <path d="M743 163C749 218 773 242 828 248C773 254 749 278 743 333C737 278 713 254 658 248C713 242 737 218 743 163Z" fill="#15A692"/>
+  <circle cx="813" cy="359" r="13" fill="#15A692"/>
+</svg>

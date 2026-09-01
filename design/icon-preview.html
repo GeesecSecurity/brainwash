@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Brainwash icon study</title>
+    <style>
+      :root { color-scheme: dark; font-family: ui-rounded, "SF Pro Rounded", sans-serif; }
+      * { box-sizing: border-box; }
+      body { min-height: 100vh; margin: 0; display: grid; place-items: center; background: radial-gradient(circle at 50% 0%, #ecf8f5, #b7d6d0 62%); color: #183b3a; }
+      main { width: min(880px, calc(100% - 48px)); display: grid; grid-template-columns: minmax(260px, 1fr) minmax(240px, .8fr); gap: 64px; align-items: center; }
+      .icon { width: min(100%, 480px); filter: drop-shadow(0 36px 28px #0008); }
+      h1 { margin: 0 0 12px; font-size: clamp(40px, 6vw, 72px); letter-spacing: -.06em; }
+      p { margin: 0; color: #52706b; font-size: 17px; line-height: 1.55; }
+      .chips { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 24px; }
+      .chips span { padding: 7px 10px; border: 1px solid #168b7d30; border-radius: 999px; background: #ffffff80; color: #176c62; font-size: 13px; }
+      @media (max-width: 650px) { main { grid-template-columns: 1fr; gap: 28px; } .icon { width: 320px; } }
+    </style>
+  </head>
+  <body>
+    <main>
+      <img class="icon" src="brainwash-icon.svg" alt="Brainwash icon">
+      <section>
+        <h1>brainwash</h1>
+        <p>Agent memory, filtered into a portable, native session.</p>
+        <div class="chips"><span>source</span><span>filter</span><span>rehydrate</span></div>
+      </section>
+    </main>
+  </body>
+</html>
