@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="gui/AppIcon-source.png" width="88" height="88" alt="brainwash">
+  <img src="design/brainwash-logo.png" width="88" height="88" alt="brainwash">
 </p>
 
 # brainwash
