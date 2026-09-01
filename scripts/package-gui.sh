@@ -1,12 +1,16 @@
 #!/bin/bash
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+# shellcheck source=version.sh
+source "$ROOT/scripts/version.sh"
+VERSION="$(brainwash_version)"
 APP="$ROOT/dist/brainwash.app"
 MACOS="$APP/Contents/MacOS"
 RES="$APP/Contents/Resources"
 
 cd "$ROOT"
-GOOS=darwin GOARCH=arm64 CGO_ENABLED=0 go build -o "$ROOT/dist/brainwash-cli" ./cmd/brainwash-cli
+LDFLAGS="$(brainwash_ldflags "$VERSION")"
+GOOS=darwin GOARCH=arm64 CGO_ENABLED=0 go build -trimpath -ldflags="$LDFLAGS" -o "$ROOT/dist/brainwash-cli" ./cmd/brainwash-cli
 ( cd "$ROOT/gui" && swift build -c release --arch arm64 --product BrainwashGUI )
 
 bash "$ROOT/scripts/make-appicon.sh"
@@ -28,7 +32,9 @@ for bin in "$MACOS/BrainwashGUI" "$MACOS/brainwash-cli"; do
   fi
 done
 cp "$ROOT/gui/Info.plist" "$APP/Contents/Info.plist"
+brainwash_stamp_plist "$APP/Contents/Info.plist" "$VERSION"
 cp "$ROOT/gui/AppIcon.icns" "$RES/AppIcon.icns"
+echo "==> version $VERSION"
 printf 'APPL????' > "$APP/Contents/PkgInfo"
 chmod +x "$MACOS/BrainwashGUI" "$MACOS/brainwash-cli"
 echo "$APP"

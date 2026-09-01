@@ -322,10 +322,10 @@ func pickAll(refs []ir.SessionRef, id string, latest, all bool) ([]ir.SessionRef
 		}
 		return nil, fmt.Errorf("session %q not found", id)
 	}
-	if latest || true {
+	if latest {
 		return []ir.SessionRef{refs[0]}, nil
 	}
-	return nil, fmt.Errorf("specify --session, --latest, or --all")
+	return nil, fmt.Errorf("specify --session, --path, --latest, or --all")
 }
 
 func Slots() []map[string]string {

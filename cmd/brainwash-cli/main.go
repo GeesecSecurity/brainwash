@@ -11,6 +11,7 @@ import (
 	"brainwash/internal/ir"
 	"brainwash/internal/service"
 	"brainwash/internal/slots/codex"
+	"brainwash/internal/version"
 )
 
 func main() {
@@ -19,6 +20,9 @@ func main() {
 		os.Exit(2)
 	}
 	switch os.Args[1] {
+	case "version", "-v", "--version":
+		fmt.Println(version.String())
+		return
 	case "list":
 		cmdList(os.Args[2:])
 	case "show":
@@ -51,23 +55,22 @@ func usage() {
 
 Commands:
   list   [--slot pi|codex|claude|dsh] [--cwd DIR]
-  show   --slot SLOT [--session ID|--latest] [--cwd DIR]
-  clone  --from SLOT --to SLOT [--session ID|--latest|--all]
+  show   --slot SLOT (--session ID|--path FILE|--latest) [--cwd DIR]
+  clone  --from SLOT --to SLOT (--session ID|--path FILE|--latest|--all)
          [--cwd DIR] [--out-cwd DIR] [--no-tools] [--max-tool-chars N] [--dry-run]
-  export --slot SLOT [--session ID|--path FILE] [--out FILE.pm] [--no-tools]
+  export --slot SLOT (--session ID|--path FILE|--latest) [--out FILE.pm] [--cwd DIR] [--no-tools]
   import --file FILE.pm [--file FILE.pm ...] [--to SLOT] [--out-cwd DIR] [--no-tools]
   reindex-codex
-
-Omit --cwd to list every project under that agent. Clone defaults to narrating
-historical tools; pass --no-tools to drop them.
-Packed memory (.pm) is a zip of manifest.json + session.json.
-Default export filename is a UUID, not the session title.
   serve  [--addr 127.0.0.1:7420]
   slots
+  version
 
-Slots are pluggable parsers (pi / codex / claude / dsh). Historical tool calls
-are folded into narrative text so they cannot collide with the destination
-agent's live tool schema.
+Omit --cwd to scan every project under that agent.
+show / clone / export need an explicit session: --session, --path, --latest, or --all.
+clone / import write into --out-cwd; if omitted they reuse the session's original project.
+Clone narrates historical tools by default; --no-tools drops them.
+Packed memory (.pm) is a zip of manifest.json + session.json.
+Default export filename is a UUID in the current directory, not the session title.
 
 `)
 }
@@ -100,7 +103,10 @@ func cmdShow(args []string) {
 	if *slotName == "" {
 		die(fmt.Errorf("--slot is required"))
 	}
-	sess, err := service.Show(service.ShowRequest{CWD: *cwd, Slot: ir.Slot(*slotName), Session: *session, Path: *path, Latest: *latest || (*session == "" && *path == "")})
+	if *session == "" && *path == "" && !*latest {
+		die(fmt.Errorf("specify --session, --path, or --latest"))
+	}
+	sess, err := service.Show(service.ShowRequest{CWD: *cwd, Slot: ir.Slot(*slotName), Session: *session, Path: *path, Latest: *latest})
 	die(err)
 	dump(sess)
 }
@@ -123,10 +129,13 @@ func cmdClone(args []string) {
 	if *from == "" || *to == "" {
 		die(fmt.Errorf("--from and --to are required"))
 	}
+	if *session == "" && *path == "" && !*latest && !*all {
+		die(fmt.Errorf("specify --session, --path, --latest, or --all"))
+	}
 	narrate := *includeTools && !*noTools
 	res, err := service.Clone(service.CloneRequest{
 		CWD: *cwd, OutCWD: *outCWD, From: ir.Slot(*from), To: ir.Slot(*to),
-		Session: *session, Path: *path, Latest: *latest || (*session == "" && *path == "" && !*all), All: *all,
+		Session: *session, Path: *path, Latest: *latest, All: *all,
 		IncludeTools: narrate, MaxToolChars: *maxChars, DryRun: *dry,
 	})
 	die(err)
@@ -139,16 +148,20 @@ func cmdExport(args []string) {
 	slotName := fs.String("slot", "", "pi|codex|claude|dsh")
 	session := fs.String("session", "", "session id")
 	path := fs.String("path", "", "session file path")
-	out := fs.String("out", "", "output .pm path (default: <uuid>.pm)")
+	out := fs.String("out", "", "output .pm path (default: ./<uuid>.pm)")
+	latest := fs.Bool("latest", false, "latest session")
 	includeTools := fs.Bool("include-tools", true, "keep historical tools in packed IR")
 	noTools := fs.Bool("no-tools", false, "drop historical tool traces from packed IR")
 	_ = fs.Parse(args)
 	if *slotName == "" {
 		die(fmt.Errorf("--slot is required"))
 	}
+	if *session == "" && *path == "" && !*latest {
+		die(fmt.Errorf("specify --session, --path, or --latest"))
+	}
 	res, err := service.Export(service.ExportRequest{
 		CWD: *cwd, Slot: ir.Slot(*slotName), Session: *session, Path: *path,
-		Latest: *session == "" && *path == "", Out: *out, IncludeTools: *includeTools && !*noTools,
+		Latest: *latest, Out: *out, IncludeTools: *includeTools && !*noTools,
 	})
 	die(err)
 	dump(res)

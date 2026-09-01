@@ -1,7 +1,7 @@
-.PHONY: build test gui serve run-gui pkg
+.PHONY: build test gui serve run-gui pkg cli
 
 build:
-	GOOS=darwin GOARCH=arm64 CGO_ENABLED=0 go build -o dist/brainwash-cli ./cmd/brainwash-cli
+	bash -c 'source scripts/version.sh && GOOS=darwin GOARCH=arm64 CGO_ENABLED=0 go build -trimpath -ldflags="$(brainwash_ldflags)" -o dist/brainwash-cli ./cmd/brainwash-cli'
 
 test:
 	go test ./...
@@ -17,3 +17,6 @@ run-gui: gui
 
 pkg:
 	bash scripts/package-pkg.sh
+
+cli:
+	bash scripts/package-cli.sh

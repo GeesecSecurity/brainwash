@@ -2,7 +2,11 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-VERSION="${BRAINWASH_VERSION:-1.0.0}"
+# shellcheck source=version.sh
+source "$ROOT/scripts/version.sh"
+VERSION="$(brainwash_version --release)"
+# Signing names / team ID are public on the certificate. The notary password
+# lives in the Keychain profile, never in this repo.
 APP_SIGN="${BRAINWASH_APP_SIGN:-Developer ID Application: Geesec Security (Chengdu) Technology Co., Ltd (UV89MYY936)}"
 PKG_SIGN="${BRAINWASH_PKG_SIGN:-Developer ID Installer: Geesec Security (Chengdu) Technology Co., Ltd (UV89MYY936)}"
 NOTARY_PROFILE="${BRAINWASH_NOTARY_PROFILE:-brainwash-notary}"
@@ -15,7 +19,8 @@ ENTITLEMENTS="$ROOT/gui/Brainwash.entitlements"
 cd "$ROOT"
 
 echo "==> build arm64 helper + GUI"
-GOOS=darwin GOARCH=arm64 CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o "$ROOT/dist/brainwash-cli" ./cmd/brainwash-cli
+LDFLAGS="$(brainwash_ldflags "$VERSION")"
+GOOS=darwin GOARCH=arm64 CGO_ENABLED=0 go build -trimpath -ldflags="$LDFLAGS" -o "$ROOT/dist/brainwash-cli" ./cmd/brainwash-cli
 ( cd "$ROOT/gui" && swift build -c release --arch arm64 --product BrainwashGUI )
 
 bash "$ROOT/scripts/make-appicon.sh"
@@ -31,10 +36,8 @@ fi
 cp "$GUI_BIN" "$APP/Contents/MacOS/BrainwashGUI"
 cp "$ROOT/dist/brainwash-cli" "$APP/Contents/MacOS/brainwash-cli"
 cp "$ROOT/gui/Info.plist" "$APP/Contents/Info.plist"
-/usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $VERSION" "$APP/Contents/Info.plist" || \
-  /usr/libexec/PlistBuddy -c "Add :CFBundleShortVersionString string $VERSION" "$APP/Contents/Info.plist"
-/usr/libexec/PlistBuddy -c "Set :CFBundleVersion $VERSION" "$APP/Contents/Info.plist" || \
-  /usr/libexec/PlistBuddy -c "Add :CFBundleVersion string $VERSION" "$APP/Contents/Info.plist"
+brainwash_stamp_plist "$APP/Contents/Info.plist" "$VERSION"
+echo "==> version $VERSION"
 cp "$ROOT/gui/AppIcon.icns" "$APP/Contents/Resources/AppIcon.icns"
 printf 'APPL????' > "$APP/Contents/PkgInfo"
 chmod +x "$APP/Contents/MacOS/BrainwashGUI" "$APP/Contents/MacOS/brainwash-cli"
